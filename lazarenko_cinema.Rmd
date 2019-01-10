@@ -1,0 +1,146 @@
+---
+title: "Comparing films"
+output: html_notebook
+---
+
+That's my mini-research project based on ratings of films. I am trying to compare films The Hobbit, Bohemian Rhapsody and Hachi and define some hypotheses to prove them or deny. After that I will decide which movie I will watch right after passing course "Probability and statistics" (better known as "Probability" or "Probabilka" among my groupmates). Firstly, I took information about ratings of these films from IMDb.com and create histograms of their ratings.<br><br>
+Let's look at the rating of <b>The Hobbit</b>
+
+```{r}
+freq <- c(17075, 2985, 4817, 8817, 21308, 55475, 130798, 202330, 136160, 139720)
+values <- c(1, 2, 3, 4, 5, 6, 7, 8, 9, 10)
+df <- data.frame(values,freq)
+vec <- rep(df$value, df$freq)
+library(ggplot2)
+ggplot(df, aes(x = values, y = freq)) +
+       geom_bar(stat="identity", fill="#8BC837")
+```
+
+And that's the rating of <b>Bohemian Rhapsody</b>
+```{r}
+freq_2 <- c(1162, 317, 548, 1065, 2721, 7524, 19944, 39728, 46733, 55121)
+values_2 <- c(1, 2, 3, 4, 5, 6, 7, 8, 9, 10)
+df_2 <- data.frame(values_2,freq_2)
+vec_2 <- rep(df_2$value, df_2$freq)
+
+library(ggplot2)
+ggplot(df_2, aes(x = values_2, y = freq_2)) +
+       geom_bar(stat="identity", fill="#8E2CAB")
+```
+And the last but not least, <b>Hachi</b>
+
+```{r}
+freq_3 <- c(1853, 822, 1134, 1862, 4714, 12141, 32883, 57383, 42295, 58050)
+values_3 <- c(1, 2, 3, 4, 5, 6, 7, 8, 9, 10)
+df_3 <- data.frame(values_3,freq_3)
+vec_3 <- rep(df_3$value, df_3$freq)
+library(ggplot2)
+ggplot(df_3, aes(x = values_3, y = freq_3)) +
+       geom_bar(stat="identity", fill="#EDA30F")
+```
+Now I will examine each rating distribution to understand more about the central trend of votes.
+
+<br>
+<b> Ratings of The Hobbit </b>
+```{r}
+print(paste0("median - ", median(vec)))
+print(paste0("mean - ", mean(vec)))
+print(paste0("standard deviation - ", sd(vec)))
+```
+<br><b> Ratings of Bohemian Rhapsody </b>
+```{r}
+print(paste0("median - ", median(vec_2)))
+print(paste0("mean - ", mean(vec_2)))
+print(paste0("standard deviation - ", sd(vec_2)))
+```
+
+<br><b> Ratings of Hachi </b>
+```{r}
+print(paste0("median - ", median(vec_3)))
+print(paste0("mean - ", mean(vec_3)))
+print(paste0("standard deviation - ", sd(vec_3)))
+```
+<br>
+Wow! Honestly, I didn't expect such from Bohemian Rhapsody! Is it that good? I didn't watch it! Well, it has good chances to win! Okay, let's run some statistical tests to compare these distributions and define a winner!
+
+Here I will use Q-Q Plots and quantilies and compare ratings distribution with normal one.
+
+```{r}
+qqnorm(vec, col="#8BC837", main = "Normal Q-Q Plot for The Hobbit")
+qqline(vec)
+
+qqnorm(vec_2, col="#8E2CAB", main = "Normal Q-Q Plot for Bohemian Rhapsody")
+qqline(vec_2)
+
+qqnorm(vec_3, col="#EDA30F", main = "Normal Q-Q Plot for Hachi")
+qqline(vec_3)
+```
+
+
+<br>
+Here you can see that points are distributed along the diagonal, but they are not so close because our data consists of discrete values instead of continuous. Still that's the proof that ratings distributions are normal because they follow the diagonal line. 
+
+<br>
+Now I have to define hypotheses and set the significance level of the test. For my case I will estimate: is one movie much better than another? Hypothesis will be built on the difference between the average ratings of films on IMDb.
+
+<br>
+Let's denote our Hypotheses:
+
+H0: µ1 = µ2
+
+H1: µ1 ≠ µ2
+
+<br>
+That means: The mean of the first film is equal to the mean of the second movie (H_0). And the mean of the first film is not equal to the mean of the second movie (H_1). Now we will try to reject H_0 by statistical test which states that there is no observable changes.
+
+Let's define our significanse level as a = 0.05. That's the probability the H_0 will be rejected when it was true.
+
+Now we have to decide which statistical test we will run. I decided to stop on <b>Welch's t-Test</b>, because our data is normally distributed, independent, have different variances and we want to compare means of the ratings. It will help us to verify if there is a big difference between datasets.
+
+
+###The Hobbit vs Bohemian Rhapsody
+```{r}
+ttest <- t.test(vec, vec_2)
+print(paste0("test-statistic - ", ttest$statistic))
+print(paste0("p-value - ", ttest$p.value))
+```
+
+###The Hobbit vs Hachi
+```{r}
+ttest_2 <- t.test(vec, vec_3)
+print(paste0("test-statistic - ", ttest_2$statistic))
+print(paste0("p-value - ", ttest_2$p.value))
+```
+
+###Bohemian Rhapsody vs Hachi
+```{r}
+ttest_3 <- t.test(vec_2, vec_3)
+print(paste0("test-statistic - ", ttest_3$statistic))
+print(paste0("p-value - ", ttest_3$p.value))
+```
+
+As you can see test-statistic is very large so there is significant difference between the two pairs movie.
+In addition, our p-value is so tiny that R even can't show it to us. That means that we can reject H_0 which states that there is no big difference between the two pairs movie as p-value is much smaller than the significance level of 0.05.
+
+
+Now after showing that there is the difference in movies and ratings means, I will choose a movie to watch according to means. Let's remember that
+
+```{r}
+mean(vec)
+mean(vec_2)
+mean(vec_3)
+```
+
+<b> The Hobbit </b>
+
+mean - 7.879275
+
+<b> Bohemian Rhapsody </b>
+
+mean - 8.553485
+
+<b> Hachi </b>
+
+mean - 8.263056
+
+So it seems that after passing course "Probability and Statistics" I will watch Bohemian Rhapsody! I have not watched it yet but I have proofs that it is the best option! And there is a question for you: What is the probability that all our groups and Mr.Rostyslav Hryniv will watch this film to have a good end of this course together? :)
